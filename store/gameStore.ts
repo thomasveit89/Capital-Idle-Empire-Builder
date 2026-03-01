@@ -16,7 +16,7 @@ import { sounds, setSoundVolume } from '@/lib/sounds'
 // ─── Initial State ─────────────────────────────────────────────────────────
 
 const createInitialState = (): GameState => ({
-  cash: 0,
+  cash: 50,
   netWorth: 0,
   allTimeEarned: 0,
   incomePerSecond: 0,

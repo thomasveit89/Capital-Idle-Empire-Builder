@@ -7,7 +7,6 @@ import { Button } from '@/components/ui/button'
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet'
 import { Separator } from '@/components/ui/separator'
 import { Settings, Zap, Clock, Volume2, VolumeX } from 'lucide-react'
-import { formatPlaytime } from '@/lib/format'
 
 export function TopBar() {
   const cash = useGameStore((s) => s.cash)
@@ -285,10 +284,23 @@ function Sparkline({ data, width = 64, height = 26 }: { data: number[]; width?: 
 }
 
 function SessionTimer({ startTime }: { startTime: number }) {
-  const [, setTick] = useState(0)
+  const [elapsed, setElapsed] = useState(0)
+  
   useEffect(() => {
-    const interval = setInterval(() => setTick((t) => t + 1), 1000)
+    // Calculate initial elapsed time on mount (client-side only)
+    setElapsed(Math.floor((Date.now() - startTime) / 1000))
+    
+    const interval = setInterval(() => {
+      setElapsed(Math.floor((Date.now() - startTime) / 1000))
+    }, 1000)
     return () => clearInterval(interval)
-  }, [])
-  return <>{formatPlaytime(startTime)}</>
+  }, [startTime])
+  
+  const h = Math.floor(elapsed / 3600)
+  const m = Math.floor((elapsed % 3600) / 60)
+  const s = elapsed % 60
+  
+  if (h > 0) return <>{h}h {m}m</>
+  if (m > 0) return <>{m}m {s}s</>
+  return <>{s}s</>
 }

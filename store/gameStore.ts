@@ -31,6 +31,7 @@ const createInitialState = (): GameState => ({
 
   clickPower: 1,
   autoClickers: {},
+  autoClickerUpgrades: [],
 
   ownedAssets: [],
   netWorthHistory: [{ timestamp: Date.now(), value: 0 }],
@@ -76,6 +77,19 @@ export const useGameStore = create<Store>()((set, get) => ({
         ...s.autoClickers,
         [id]: (s.autoClickers[id] || 0) + 1
       }
+    }))
+    
+    if (state.soundEnabled) sounds.upgrade()
+  },
+
+  purchaseAutoClickerUpgrade: (upgradeId: string, cost: number) => {
+    const state = get()
+    if (state.cash < cost) return
+    if (state.autoClickerUpgrades.includes(upgradeId)) return
+
+    set((s) => ({
+      cash: s.cash - cost,
+      autoClickerUpgrades: [...s.autoClickerUpgrades, upgradeId]
     }))
     
     if (state.soundEnabled) sounds.upgrade()

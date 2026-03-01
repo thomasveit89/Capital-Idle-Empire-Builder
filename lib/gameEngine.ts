@@ -2,6 +2,7 @@ import { GameState, OwnedAsset } from '@/types/game'
 import { getAssetDefinition } from '@/data/assets'
 import { MILESTONES } from '@/data/milestones'
 import { getActiveSynergies } from '@/data/synergies'
+import { calculateAutoClickerMultipliers } from '@/data/autoClickerUpgrades'
 
 // ─── Income Calculation ────────────────────────────────────────────────────
 
@@ -86,4 +87,56 @@ export function calculateCurrentLayer(milestonesReached: string[]): 1 | 2 | 3 | 
 export function calculateLegacyBonus(prestigeCount: number): number {
   // Each prestige grants +100% income multiplier, stackable
   return 1 + prestigeCount * 1.0
+}
+
+// ─── Auto-Clicker Income ───────────────────────────────────────────────────
+
+// Auto-clicker definitions (must match AutoClickerPanel.tsx)
+const AUTO_CLICKER_DEFS = [
+  { id: 'intern', clicksPerSecond: 1, baseCost: 500 },
+  { id: 'analyst', clicksPerSecond: 5, baseCost: 5000 },
+  { id: 'quant', clicksPerSecond: 25, baseCost: 50000 }
+]
+
+export function calculateAutoClickerIncome(state: GameState): number {
+  let totalIncome = 0
+  
+  for (const def of AUTO_CLICKER_DEFS) {
+    const count = state.autoClickers[def.id] || 0
+    if (count === 0) continue
+    
+    // Get multipliers from upgrades
+    const { speedMultiplier, powerMultiplier } = calculateAutoClickerMultipliers(
+      def.id,
+      state.autoClickerUpgrades,
+      state.autoClickers
+    )
+    
+    // Calculate income: clicks/sec × speed multiplier × € per click × power multiplier × legacy
+    const effectiveClicksPerSecond = def.clicksPerSecond * speedMultiplier
+    const valuePerClick = 1 * powerMultiplier * state.legacyMultiplier
+    const clickerIncome = count * effectiveClicksPerSecond * valuePerClick
+    
+    totalIncome += clickerIncome
+  }
+  
+  return totalIncome
+}
+
+// Calculate cost for purchasing auto-clickers with efficiency upgrades
+export function calculateAutoClickerCost(
+  autoClickerId: string,
+  baseCost: number,
+  currentCount: number,
+  autoClickerUpgrades: string[]
+): number {
+  const { costScalingMultiplier } = calculateAutoClickerMultipliers(
+    autoClickerId,
+    autoClickerUpgrades,
+    {}
+  )
+  
+  // Apply efficiency reduction to the 1.15 scaling factor
+  const scalingFactor = 1.15 * costScalingMultiplier
+  return Math.ceil(baseCost * Math.pow(scalingFactor, currentCount))
 }

@@ -3,6 +3,7 @@
 import { useGameStore } from '@/store/gameStore'
 import { MILESTONES } from '@/data/milestones'
 import { ASSET_DEFINITIONS } from '@/data/assets'
+import { AUTO_CLICKER_UPGRADES } from '@/data/autoClickerUpgrades'
 import { formatCurrency } from '@/lib/format'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { AutoClickerPanel } from './AutoClickerPanel'
@@ -14,21 +15,34 @@ export function RightPanel() {
   const ownedAssets = useGameStore((s) => s.ownedAssets)
   const cash = useGameStore((s) => s.cash)
   const purchaseUpgrade = useGameStore((s) => s.purchaseUpgrade)
+  const autoClickers = useGameStore((s) => s.autoClickers || {})
+  const autoClickerUpgrades = useGameStore((s) => s.autoClickerUpgrades || [])
+  const purchaseAutoClickerUpgrade = useGameStore((s) => s.purchaseAutoClickerUpgrade)
 
   // Find next milestone
   const nextMilestoneIdx = MILESTONES.findIndex((m) => !milestonesReached.includes(m.id))
 
-  // Get available upgrades
-  const availableUpgrades: { assetId: string, upgradeId: string, name: string, desc: string, cost: number, icon: string, multiplier: number }[] = []
+  // Get asset upgrades
+  const assetUpgrades: { 
+    id: string
+    type: 'asset'
+    assetId: string
+    name: string
+    desc: string
+    cost: number
+    icon: string
+    multiplier: number
+  }[] = []
   
   ownedAssets.forEach(owned => {
     const def = ASSET_DEFINITIONS.find(d => d.id === owned.definitionId)
     if (def) {
       def.upgrades.forEach(upg => {
         if (!owned.unlockedUpgrades.includes(upg.id)) {
-          availableUpgrades.push({
+          assetUpgrades.push({
+            id: upg.id,
+            type: 'asset',
             assetId: def.id,
-            upgradeId: upg.id,
             name: upg.name,
             desc: upg.description,
             cost: upg.cost,
@@ -40,8 +54,50 @@ export function RightPanel() {
     }
   })
 
-  // Sort by cost
-  availableUpgrades.sort((a, b) => a.cost - b.cost)
+  // Get available auto-clicker upgrades
+  const ownedTypes = Object.entries(autoClickers).filter(([_, count]) => count > 0).map(([id]) => id)
+  
+  const availableAutoClickerUpgrades = AUTO_CLICKER_UPGRADES.filter(upgrade => {
+    // Already purchased
+    if (autoClickerUpgrades.includes(upgrade.id)) return false
+    
+    // Check requirements
+    if (upgrade.requiresUpgrade && !autoClickerUpgrades.includes(upgrade.requiresUpgrade)) {
+      return false
+    }
+    
+    // Check if targeted auto-clicker is owned
+    if (upgrade.targetAutoClickerId && !ownedTypes.includes(upgrade.targetAutoClickerId)) {
+      return false
+    }
+    
+    // For synergies, need at least 2 different types
+    if (upgrade.type === 'synergy' && ownedTypes.length < 2) {
+      return false
+    }
+    
+    return true
+  }).map(upgrade => ({
+    id: upgrade.id,
+    type: 'autoClicker' as const,
+    name: upgrade.name,
+    desc: upgrade.description,
+    cost: upgrade.cost,
+    icon: upgrade.icon,
+    effect: upgrade.type === 'speed' ? 'Speed' : 
+            upgrade.type === 'power' ? 'Power' : 
+            upgrade.type === 'synergy' ? 'Synergy' : 'Efficiency',
+    effectValue: upgrade.effect.speedMultiplier || 
+                 upgrade.effect.powerMultiplier || 
+                 upgrade.effect.synergyBonus || 
+                 upgrade.effect.costScalingMultiplier || 1
+  }))
+
+  // Combine and sort all upgrades by cost
+  const allUpgrades = [
+    ...assetUpgrades,
+    ...availableAutoClickerUpgrades
+  ].sort((a, b) => a.cost - b.cost)
 
   return (
     <aside className="flex flex-col h-full overflow-hidden">
@@ -60,28 +116,39 @@ export function RightPanel() {
           </div>
           <ScrollArea className="flex-1 min-h-0">
             <div className="p-3 space-y-2">
-              {availableUpgrades.length === 0 ? (
+              {allUpgrades.length === 0 ? (
                 <p className="text-xs text-zinc-600 font-mono text-center py-4">
                   No upgrades available. Keep building.
                 </p>
               ) : (
-                availableUpgrades.map(upg => {
+                allUpgrades.map(upg => {
                   const canAfford = cash >= upg.cost
+                  const isAssetUpgrade = upg.type === 'asset'
+                  const isAutoClickerUpgrade = upg.type === 'autoClicker'
+                  
                   return (
                     <button
-                      key={upg.upgradeId}
+                      key={upg.id}
                       disabled={!canAfford}
-                      onClick={() => purchaseUpgrade(upg.assetId, upg.upgradeId)}
+                      onClick={() => {
+                        if (isAssetUpgrade) {
+                          purchaseUpgrade((upg as any).assetId, upg.id)
+                        } else {
+                          purchaseAutoClickerUpgrade(upg.id, upg.cost)
+                        }
+                      }}
                       className={`w-full p-2 rounded-md border text-left transition-colors ${
                         canAfford 
-                          ? 'border-amber-500/50 bg-amber-950/20 hover:bg-amber-900/40 cursor-pointer' 
+                          ? isAutoClickerUpgrade 
+                            ? 'border-sky-500/50 bg-sky-950/20 hover:bg-sky-900/40 cursor-pointer'
+                            : 'border-amber-500/50 bg-amber-950/20 hover:bg-amber-900/40 cursor-pointer'
                           : 'border-zinc-800/50 bg-zinc-900/20 opacity-60 cursor-not-allowed'
                       }`}
                     >
                       {/* Row 1: Icon + Name + Cost */}
                       <div className="flex items-center gap-2">
                         <span className="text-lg leading-none shrink-0">{upg.icon}</span>
-                        <p className={`text-xs font-bold font-mono truncate flex-1 ${canAfford ? 'text-amber-400' : 'text-zinc-500'}`}>
+                        <p className={`text-xs font-bold font-mono truncate flex-1 ${canAfford ? (isAutoClickerUpgrade ? 'text-sky-400' : 'text-amber-400') : 'text-zinc-500'}`}>
                           {upg.name}
                         </p>
                         <span className="text-[10px] font-mono text-zinc-400 shrink-0">
@@ -89,13 +156,17 @@ export function RightPanel() {
                         </span>
                       </div>
                       
-                      {/* Row 2: Description + Multiplier */}
+                      {/* Row 2: Description + Effect */}
                       <div className="flex items-start justify-between gap-2 mt-1.5 pl-7">
                         <p className="text-[10px] text-zinc-500 leading-tight line-clamp-2 flex-1">
                           {upg.desc}
                         </p>
-                        <span className="shrink-0 text-[9px] font-mono font-bold text-emerald-500 bg-emerald-950/40 px-1.5 py-0.5 rounded whitespace-nowrap">
-                          {upg.multiplier}x
+                        <span className={`shrink-0 text-[9px] font-mono font-bold px-1.5 py-0.5 rounded whitespace-nowrap ${
+                          isAutoClickerUpgrade 
+                            ? 'text-sky-500 bg-sky-950/40' 
+                            : 'text-emerald-500 bg-emerald-950/40'
+                        }`}>
+                          {isAssetUpgrade ? `${(upg as any).multiplier}x` : (upg as any).effect}
                         </span>
                       </div>
                     </button>

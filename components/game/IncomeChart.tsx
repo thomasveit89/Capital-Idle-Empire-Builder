@@ -2,7 +2,7 @@
 
 import { useGameStore } from '@/store/gameStore'
 import { ASSET_DEFINITIONS } from '@/data/assets'
-import { calculateAssetIncome } from '@/lib/gameEngine'
+import { calculateAssetIncome, calculateAutoClickerIncome } from '@/lib/gameEngine'
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip as RechartsTooltip } from 'recharts'
 import { useMemo, useState, useEffect } from 'react'
 import { formatCurrency } from '@/lib/format'
@@ -13,6 +13,7 @@ export function IncomeChart() {
   const ownedAssets = useGameStore(s => s.ownedAssets)
   const legacyMultiplier = useGameStore(s => s.legacyMultiplier)
   const autoClickers = useGameStore(s => s.autoClickers || {})
+  const autoClickerUpgrades = useGameStore(s => s.autoClickerUpgrades || [])
   const clickPower = useGameStore(s => s.clickPower)
   const [mounted, setMounted] = useState(false)
   
@@ -37,19 +38,9 @@ export function IncomeChart() {
       .filter(item => item.value > 0)
       .sort((a, b) => b.value - a.value)
     
-    // Add auto-clicker income if present (base €1 per click only)
-    const AUTO_CLICKER_DEFS = [
-      { id: 'intern', clicksPerSecond: 1 },
-      { id: 'analyst', clicksPerSecond: 5 },
-      { id: 'quant', clicksPerSecond: 25 }
-    ]
-    const totalAutoClicks = AUTO_CLICKER_DEFS.reduce((total, clicker) => {
-      return total + (autoClickers[clicker.id] || 0) * clicker.clicksPerSecond
-    }, 0)
-    
-    if (totalAutoClicks > 0) {
-      // Auto-clickers get base €1 per click (no income bonus)
-      const autoClickerIncome = totalAutoClicks * 1 * clickPower * legacyMultiplier
+    // Add auto-clicker income if present (with upgrades)
+    const autoClickerIncome = calculateAutoClickerIncome(state)
+    if (autoClickerIncome > 0) {
       items.unshift({
         name: 'Auto-Clickers',
         value: autoClickerIncome,
@@ -59,7 +50,7 @@ export function IncomeChart() {
     
     // Limit to top 8 for readability
     return items.slice(0, 8)
-  }, [ownedAssets, legacyMultiplier, autoClickers, clickPower])
+  }, [ownedAssets, legacyMultiplier, autoClickers, autoClickerUpgrades, clickPower])
 
   if (!mounted) return null
 
@@ -76,7 +67,7 @@ export function IncomeChart() {
       <h3 className="text-[10px] font-mono text-zinc-500 uppercase tracking-widest mb-2 text-center">
         Income Distribution
       </h3>
-      <div className="flex-1 min-h-0">
+      <div className="flex-1 min-h-[150px]">
         <ResponsiveContainer width="100%" height="100%">
           <PieChart>
             <Pie

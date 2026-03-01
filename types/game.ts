@@ -66,6 +66,7 @@ export interface GameState {
   // Player attributes
   clickPower: number
   autoClickers: Record<string, number>
+  autoClickerUpgrades: string[] // Unlocked auto-clicker upgrade IDs
 
   // Assets
   ownedAssets: OwnedAsset[]
@@ -84,6 +85,7 @@ export interface GameActions {
   // Click action
   handleClick: (amount?: number) => void
   purchaseAutoClicker: (id: string, cost: number) => void
+  purchaseAutoClickerUpgrade: (upgradeId: string, cost: number) => void
 
   // Asset management
   purchaseAsset: (definitionId: string, amount: number) => void

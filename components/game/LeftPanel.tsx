@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useGameStore } from '@/store/gameStore'
 import { formatCurrency } from '@/lib/format'
-import { calculateClickValue, calculateAssetIncome } from '@/lib/gameEngine'
+import { calculateClickValue, calculateAssetIncome, calculateAutoClickerIncome } from '@/lib/gameEngine'
 import { ASSET_DEFINITIONS } from '@/data/assets'
 import { sounds } from '@/lib/sounds'
 import { TrendingUp, MousePointerClick, BarChart2 } from 'lucide-react'
@@ -70,18 +70,8 @@ export function LeftPanel() {
     [handleClick, clickValue, nextId]
   )
 
-  // Calculate auto-clicker income (base €1 per click, no income bonus)
-  const autoClickers = useGameStore(s => s.autoClickers || {})
-  const clickPower = useGameStore(s => s.clickPower)
-  const AUTO_CLICKER_DEFS = [
-    { id: 'intern', clicksPerSecond: 1 },
-    { id: 'analyst', clicksPerSecond: 5 },
-    { id: 'quant', clicksPerSecond: 25 }
-  ]
-  const totalAutoClicks = AUTO_CLICKER_DEFS.reduce((total, clicker) => {
-    return total + (autoClickers[clicker.id] || 0) * clicker.clicksPerSecond
-  }, 0)
-  const autoClickerIncome = totalAutoClicks * 1 * clickPower * legacyMultiplier
+  // Calculate auto-clicker income with upgrades
+  const autoClickerIncome = calculateAutoClickerIncome(state)
 
   // All income sources - sorted by highest income first
   const allIncomeSources = [

@@ -15,10 +15,8 @@ export function RightPanel() {
   const cash = useGameStore((s) => s.cash)
   const purchaseUpgrade = useGameStore((s) => s.purchaseUpgrade)
 
-  // Show reached + 1 next + fill up to 4 total
+  // Find next milestone
   const nextMilestoneIdx = MILESTONES.findIndex((m) => !milestonesReached.includes(m.id))
-  const startIdx = Math.max(0, nextMilestoneIdx - 1)
-  const visibleMilestones = MILESTONES.slice(startIdx, startIdx + 4)
 
   // Get available upgrades
   const availableUpgrades: { assetId: string, upgradeId: string, name: string, desc: string, cost: number, icon: string, multiplier: number }[] = []
@@ -74,30 +72,31 @@ export function RightPanel() {
                       key={upg.upgradeId}
                       disabled={!canAfford}
                       onClick={() => purchaseUpgrade(upg.assetId, upg.upgradeId)}
-                      className={`w-full flex items-start gap-2 p-2 rounded border text-left transition-colors ${
+                      className={`w-full p-2 rounded-md border text-left transition-colors ${
                         canAfford 
                           ? 'border-amber-500/50 bg-amber-950/20 hover:bg-amber-900/40 cursor-pointer' 
                           : 'border-zinc-800/50 bg-zinc-900/20 opacity-60 cursor-not-allowed'
                       }`}
                     >
-                      <span className="text-lg leading-none">{upg.icon}</span>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex justify-between items-baseline gap-1">
-                          <p className={`text-xs font-bold font-mono truncate ${canAfford ? 'text-amber-400' : 'text-zinc-500'}`}>
-                            {upg.name}
-                          </p>
-                          <span className="text-[10px] font-mono text-zinc-400 shrink-0">
-                            {formatCurrency(upg.cost)}
-                          </span>
-                        </div>
-                        <div className="flex justify-between items-start gap-2 mt-1">
-                          <p className="text-[10px] text-zinc-500 leading-tight">
-                            {upg.desc}
-                          </p>
-                          <span className="shrink-0 text-[9px] font-mono font-bold text-emerald-500 bg-emerald-950/40 px-1 rounded">
-                            {upg.multiplier}x Income
-                          </span>
-                        </div>
+                      {/* Row 1: Icon + Name + Cost */}
+                      <div className="flex items-center gap-2">
+                        <span className="text-lg leading-none shrink-0">{upg.icon}</span>
+                        <p className={`text-xs font-bold font-mono truncate flex-1 ${canAfford ? 'text-amber-400' : 'text-zinc-500'}`}>
+                          {upg.name}
+                        </p>
+                        <span className="text-[10px] font-mono text-zinc-400 shrink-0">
+                          {formatCurrency(upg.cost)}
+                        </span>
+                      </div>
+                      
+                      {/* Row 2: Description + Multiplier */}
+                      <div className="flex items-start justify-between gap-2 mt-1.5 pl-7">
+                        <p className="text-[10px] text-zinc-500 leading-tight line-clamp-2 flex-1">
+                          {upg.desc}
+                        </p>
+                        <span className="shrink-0 text-[9px] font-mono font-bold text-emerald-500 bg-emerald-950/40 px-1.5 py-0.5 rounded whitespace-nowrap">
+                          {upg.multiplier}x
+                        </span>
                       </div>
                     </button>
                   )
@@ -108,21 +107,20 @@ export function RightPanel() {
         </div>
 
         {/* ── Milestones ──────────────────────────────────── */}
-        <div className="rounded-lg border border-zinc-800 bg-zinc-900/50 p-3 shrink-0">
-          <span className="text-[10px] font-mono text-zinc-500 uppercase tracking-widest block mb-2">
-            Milestones
-          </span>
-
-          {/* Progress toward next milestone */}
-          {nextMilestoneIdx !== -1 && (() => {
-            const next = MILESTONES[nextMilestoneIdx]
-            const prev = MILESTONES[nextMilestoneIdx - 1]
-            const base = prev?.threshold ?? 0
-            const pct = Math.min(100, ((netWorth - base) / (next.threshold - base)) * 100)
-            return (
-              <div className="mb-3 space-y-1.5">
-                <div className="flex justify-between text-[10px] font-mono">
-                  <span className="text-zinc-400 truncate pr-2">{next.title}</span>
+        {nextMilestoneIdx !== -1 && (() => {
+          const next = MILESTONES[nextMilestoneIdx]
+          const prev = MILESTONES[nextMilestoneIdx - 1]
+          const base = prev?.threshold ?? 0
+          const pct = Math.min(100, ((netWorth - base) / (next.threshold - base)) * 100)
+          return (
+            <div className="rounded-lg border border-zinc-800 bg-zinc-900/50 p-3 shrink-0">
+              <span className="text-[10px] font-mono text-zinc-500 uppercase tracking-widest block mb-2">
+                Next Milestone
+              </span>
+              
+              <div className="space-y-1.5">
+                <div className="flex justify-between items-center text-[10px] font-mono">
+                  <span className="text-white truncate pr-2">{next.title}</span>
                   <span className="text-sky-400 shrink-0">{Math.round(pct)}%</span>
                 </div>
                 <div className="h-1 bg-zinc-800 rounded-full overflow-hidden">
@@ -135,56 +133,9 @@ export function RightPanel() {
                   {formatCurrency(next.threshold)}
                 </p>
               </div>
-            )
-          })()}
-
-          <div className="space-y-2">
-            {visibleMilestones.map((milestone) => {
-              const reached = milestonesReached.includes(milestone.id)
-              const isNext =
-                !reached &&
-                MILESTONES.find((m) => !milestonesReached.includes(m.id))?.id === milestone.id
-
-              return (
-                <div
-                  key={milestone.id}
-                  className={`flex items-center gap-2 ${
-                    reached ? 'opacity-40' : isNext ? '' : 'opacity-25'
-                  }`}
-                >
-                  <div
-                    className={`w-2.5 h-2.5 rounded-full shrink-0 border ${
-                      reached
-                        ? 'bg-emerald-500 border-emerald-400'
-                        : isNext
-                        ? 'border-sky-500 animate-pulse bg-sky-950'
-                        : 'border-zinc-700 bg-zinc-900'
-                    }`}
-                  />
-
-                  <div className="min-w-0 flex-1">
-                    <p
-                      className={`text-[11px] font-mono font-semibold truncate ${
-                        reached
-                          ? 'line-through text-zinc-500'
-                          : isNext
-                          ? 'text-white'
-                          : 'text-zinc-500'
-                      }`}
-                    >
-                      {milestone.title}
-                    </p>
-                    <p className="text-[10px] text-zinc-600 font-mono">
-                      {formatCurrency(milestone.threshold)}
-                    </p>
-                  </div>
-
-                  {reached && <span className="text-emerald-500 text-[10px]">✓</span>}
-                </div>
-              )
-            })}
-          </div>
-        </div>
+            </div>
+          )
+        })()}
       </div>
     </aside>
   )

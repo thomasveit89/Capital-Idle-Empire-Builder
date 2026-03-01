@@ -6,7 +6,7 @@ import { RightPanel } from '@/components/game/RightPanel'
 import { MilestoneOverlay } from '@/components/game/MilestoneOverlay'
 import { LayerTheme } from '@/components/game/LayerTheme'
 import { GoldenCookie } from '@/components/game/GoldenCookie'
-import { VisualCity } from '@/components/game/VisualCity'
+import { IncomeChart } from '@/components/game/IncomeChart'
 
 export default function GamePage() {
   return (
@@ -17,13 +17,13 @@ export default function GamePage() {
 
       <div className="flex flex-1 overflow-hidden">
         {/* Left Panel — The Engine */}
-        <div className="w-72 shrink-0 border-r border-zinc-800 overflow-hidden flex flex-col">
+        <div className="w-80 shrink-0 border-r border-zinc-800 overflow-hidden flex flex-col">
           <div className="flex-1 min-h-0 overflow-y-auto">
             <LeftPanel />
           </div>
-          {/* Visual City at the bottom of the left panel */}
+          {/* Income Chart at the bottom of the left panel */}
           <div className="h-64 shrink-0 border-t border-zinc-800 relative overflow-hidden bg-zinc-900/20">
-            <VisualCity />
+            <IncomeChart />
           </div>
         </div>
 
@@ -33,7 +33,7 @@ export default function GamePage() {
         </div>
 
         {/* Right Panel — Upgrades and Milestones */}
-        <div className="w-72 shrink-0 overflow-hidden">
+        <div className="w-80 shrink-0 overflow-hidden">
           <RightPanel />
         </div>
       </div>

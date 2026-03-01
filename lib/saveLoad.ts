@@ -13,6 +13,7 @@ export function saveGame(state: GameState): void {
       prestigeCount: state.prestigeCount,
       legacyMultiplier: state.legacyMultiplier,
       clickPower: state.clickPower,
+      autoClickers: state.autoClickers,
       ownedAssets: state.ownedAssets,
       netWorthHistory: state.netWorthHistory.slice(-500), // keep last 500 points
       lastSaveTime: Date.now(),
@@ -43,6 +44,7 @@ export function exportSave(state: GameState): string {
     cash: state.cash,
     allTimeEarned: state.allTimeEarned,
     ownedAssets: state.ownedAssets,
+    autoClickers: state.autoClickers,
     milestonesReached: state.milestonesReached,
     prestigeCount: state.prestigeCount,
     legacyMultiplier: state.legacyMultiplier,

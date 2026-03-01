@@ -175,7 +175,7 @@ export const useGameStore = create<Store>()((set, get) => ({
     const incomePerSecond = calculateTotalIncomePerSecond(state)
     const earned = incomePerSecond * effectiveElapsed
 
-    // Auto-clicker math
+    // Auto-clicker math - auto-clickers give base click value only (no income bonus)
     const AUTO_CLICKERS = [
       { id: 'intern', clicksPerSecond: 1 },
       { id: 'analyst', clicksPerSecond: 5 },
@@ -185,8 +185,9 @@ export const useGameStore = create<Store>()((set, get) => ({
       return total + (state.autoClickers[clicker.id] || 0) * clicker.clicksPerSecond
     }, 0)
     
-    const clickValue = calculateClickValue(state)
-    const autoClickEarned = totalAutoClicks * clickValue * effectiveElapsed
+    // Auto-clickers get base €1 per click + multipliers, but NOT the 10% income bonus
+    const autoClickValue = 1 * state.clickPower * state.legacyMultiplier
+    const autoClickEarned = totalAutoClicks * autoClickValue * effectiveElapsed
 
     const totalEarned = earned + autoClickEarned
 

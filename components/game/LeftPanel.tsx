@@ -70,15 +70,32 @@ export function LeftPanel() {
     [handleClick, clickValue, nextId]
   )
 
-  // Top income sources
-  const incomeBreakdown = ownedAssets
-    .map((asset) => {
-      const def = ASSET_DEFINITIONS.find((d) => d.id === asset.definitionId)
-      const income = calculateAssetIncome(asset, legacyMultiplier, state)
-      return { name: def?.name ?? asset.definitionId, icon: def?.icon ?? '?', income }
-    })
-    .sort((a, b) => b.income - a.income)
-    .slice(0, 5)
+  // Calculate auto-clicker income (base €1 per click, no income bonus)
+  const autoClickers = useGameStore(s => s.autoClickers || {})
+  const clickPower = useGameStore(s => s.clickPower)
+  const AUTO_CLICKER_DEFS = [
+    { id: 'intern', clicksPerSecond: 1 },
+    { id: 'analyst', clicksPerSecond: 5 },
+    { id: 'quant', clicksPerSecond: 25 }
+  ]
+  const totalAutoClicks = AUTO_CLICKER_DEFS.reduce((total, clicker) => {
+    return total + (autoClickers[clicker.id] || 0) * clicker.clicksPerSecond
+  }, 0)
+  const autoClickerIncome = totalAutoClicks * 1 * clickPower * legacyMultiplier
+
+  // All income sources - sorted by highest income first
+  const allIncomeSources = [
+    // Asset income
+    ...ownedAssets
+      .map((asset) => {
+        const def = ASSET_DEFINITIONS.find((d) => d.id === asset.definitionId)
+        const income = calculateAssetIncome(asset, legacyMultiplier, state)
+        return { name: def?.name ?? asset.definitionId, icon: def?.icon ?? '?', income }
+      })
+      .filter(item => item.income > 0),
+    // Auto-clicker income if present
+    ...(autoClickerIncome > 0 ? [{ name: 'Auto-Clickers', icon: '👆', income: autoClickerIncome }] : [])
+  ].sort((a, b) => b.income - a.income)
 
   return (
     <aside className="flex flex-col gap-4 p-4 h-full overflow-y-auto">
@@ -143,11 +160,11 @@ export function LeftPanel() {
           <span className="text-[10px] font-mono text-zinc-400 uppercase tracking-widest">Income Sources</span>
         </div>
 
-        {incomeBreakdown.length === 0 ? (
+        {allIncomeSources.length === 0 ? (
           <p className="text-xs text-zinc-600 font-mono text-center py-2">No passive income yet</p>
         ) : (
           <div className="space-y-2">
-            {incomeBreakdown.map((item, i) => (
+            {allIncomeSources.map((item, i) => (
               <div key={i} className="flex items-center justify-between">
                 <div className="flex items-center gap-1.5 min-w-0">
                   <span className="text-sm">{item.icon}</span>

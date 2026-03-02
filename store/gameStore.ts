@@ -53,11 +53,11 @@ export const useGameStore = create<Store>()((set, get) => ({
   handleClick: (amount: number = 1) => {
     const state = get()
     const now = Date.now()
-    const clickValue = calculateClickValue(state) * amount
+    const clickValue = Math.max(0, calculateClickValue(state) * amount)
 
     set((s) => ({
-      cash: s.cash + clickValue,
-      allTimeEarned: s.allTimeEarned + clickValue,
+      cash: Math.max(0, s.cash + clickValue),
+      allTimeEarned: Math.max(0, s.allTimeEarned + clickValue),
       lastTickTime: now, // keep it somewhat in sync
     }))
     
@@ -69,10 +69,10 @@ export const useGameStore = create<Store>()((set, get) => ({
 
   purchaseAutoClicker: (id: string, cost: number) => {
     const state = get()
-    if (state.cash < cost) return
+    if (state.cash < cost || cost < 0) return
 
     set((s) => ({
-      cash: s.cash - cost,
+      cash: Math.max(0, s.cash - cost),
       autoClickers: {
         ...s.autoClickers,
         [id]: (s.autoClickers[id] || 0) + 1
@@ -84,11 +84,11 @@ export const useGameStore = create<Store>()((set, get) => ({
 
   purchaseAutoClickerUpgrade: (upgradeId: string, cost: number) => {
     const state = get()
-    if (state.cash < cost) return
+    if (state.cash < cost || cost < 0) return
     if (state.autoClickerUpgrades.includes(upgradeId)) return
 
     set((s) => ({
-      cash: s.cash - cost,
+      cash: Math.max(0, s.cash - cost),
       autoClickerUpgrades: [...s.autoClickerUpgrades, upgradeId]
     }))
     
@@ -110,7 +110,7 @@ export const useGameStore = create<Store>()((set, get) => ({
       totalCost += Math.ceil(def.baseCost * Math.pow(1.15, currentCount + i))
     }
 
-    if (state.cash < totalCost) return
+    if (state.cash < totalCost || totalCost < 0) return
 
     let newAssets: OwnedAsset[]
     if (existing) {
@@ -130,7 +130,7 @@ export const useGameStore = create<Store>()((set, get) => ({
     }
 
     set((s) => ({
-      cash: s.cash - totalCost,
+      cash: Math.max(0, s.cash - totalCost),
       ownedAssets: newAssets,
     }))
 
@@ -158,7 +158,7 @@ export const useGameStore = create<Store>()((set, get) => ({
     const asset = state.ownedAssets[assetIdx]
     if (asset.unlockedUpgrades.includes(upgradeId)) return // Already unlocked
     
-    if (state.cash < upgrade.cost) return
+    if (state.cash < upgrade.cost || upgrade.cost < 0) return
 
     const newAssets = [...state.ownedAssets]
     newAssets[assetIdx] = {
@@ -167,7 +167,7 @@ export const useGameStore = create<Store>()((set, get) => ({
     }
 
     set((s) => ({
-      cash: s.cash - upgrade.cost,
+      cash: Math.max(0, s.cash - upgrade.cost),
       ownedAssets: newAssets,
     }))
 
@@ -205,8 +205,9 @@ export const useGameStore = create<Store>()((set, get) => ({
 
     const totalEarned = earned + autoClickEarned
 
-    const newCash = state.cash + totalEarned
-    const newAllTime = state.allTimeEarned + totalEarned
+    // Safety check: ensure earnings don't cause overflow or negative values
+    const newCash = Math.max(0, state.cash + totalEarned)
+    const newAllTime = Math.max(0, state.allTimeEarned + totalEarned)
     const updatedState = { ...state, cash: newCash, allTimeEarned: newAllTime, incomePerSecond }
     const newNetWorth = calculateNetWorth(updatedState)
 
@@ -262,6 +263,15 @@ export const useGameStore = create<Store>()((set, get) => ({
         unlockedUpgrades: a.unlockedUpgrades || [],
         count: a.count ?? 1
       }))
+    }
+
+    // Sanitize potentially corrupted values (negative cash or NaN)
+    if (!isFinite(merged.cash) || merged.cash < 0) {
+      console.warn('Corrupted cash value detected, resetting to 0:', merged.cash)
+      merged.cash = 0
+    }
+    if (!isFinite(merged.allTimeEarned) || merged.allTimeEarned < 0) {
+      merged.allTimeEarned = Math.max(0, merged.allTimeEarned || 0)
     }
 
     const incomePerSecond = calculateTotalIncomePerSecond(merged)

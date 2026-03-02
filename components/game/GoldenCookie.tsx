@@ -70,8 +70,8 @@ export function GoldenCookie() {
     
     // Apply reward
     useGameStore.setState(s => ({
-      cash: s.cash + reward,
-      allTimeEarned: s.allTimeEarned + reward
+      cash: Math.max(0, s.cash + reward),
+      allTimeEarned: Math.max(0, s.allTimeEarned + reward)
     }))
     
     // Show floating text

@@ -35,7 +35,7 @@ export const AUTO_CLICKER_UPGRADES: AutoClickerUpgradeDefinition[] = [
     targetAutoClickerId: 'intern',
     cost: 2500,
     tier: 1,
-    effect: { speedMultiplier: 1.5 },
+    effect: { speedMultiplier: 1.25 },
     icon: '☕'
   },
   {
@@ -46,7 +46,7 @@ export const AUTO_CLICKER_UPGRADES: AutoClickerUpgradeDefinition[] = [
     targetAutoClickerId: 'intern',
     cost: 15000,
     tier: 2,
-    effect: { speedMultiplier: 2.0 },
+    effect: { speedMultiplier: 1.5 },
     icon: '🥤',
     requiresUpgrade: 'intern_speed_1'
   },
@@ -58,7 +58,7 @@ export const AUTO_CLICKER_UPGRADES: AutoClickerUpgradeDefinition[] = [
     targetAutoClickerId: 'intern',
     cost: 100000,
     tier: 3,
-    effect: { speedMultiplier: 2.5 },
+    effect: { speedMultiplier: 1.75 },
     icon: '🤖',
     requiresUpgrade: 'intern_speed_2'
   },
@@ -72,7 +72,7 @@ export const AUTO_CLICKER_UPGRADES: AutoClickerUpgradeDefinition[] = [
     targetAutoClickerId: 'analyst',
     cost: 25000,
     tier: 1,
-    effect: { speedMultiplier: 1.5 },
+    effect: { speedMultiplier: 1.25 },
     icon: '🖥️'
   },
   {
@@ -83,7 +83,7 @@ export const AUTO_CLICKER_UPGRADES: AutoClickerUpgradeDefinition[] = [
     targetAutoClickerId: 'analyst',
     cost: 150000,
     tier: 2,
-    effect: { speedMultiplier: 2.0 },
+    effect: { speedMultiplier: 1.5 },
     icon: '📊',
     requiresUpgrade: 'analyst_speed_1'
   },
@@ -95,7 +95,7 @@ export const AUTO_CLICKER_UPGRADES: AutoClickerUpgradeDefinition[] = [
     targetAutoClickerId: 'analyst',
     cost: 1000000,
     tier: 3,
-    effect: { speedMultiplier: 2.5 },
+    effect: { speedMultiplier: 1.75 },
     icon: '📈',
     requiresUpgrade: 'analyst_speed_2'
   },
@@ -109,7 +109,7 @@ export const AUTO_CLICKER_UPGRADES: AutoClickerUpgradeDefinition[] = [
     targetAutoClickerId: 'quant',
     cost: 250000,
     tier: 1,
-    effect: { speedMultiplier: 1.5 },
+    effect: { speedMultiplier: 1.25 },
     icon: '⚛️'
   },
   {
@@ -120,7 +120,7 @@ export const AUTO_CLICKER_UPGRADES: AutoClickerUpgradeDefinition[] = [
     targetAutoClickerId: 'quant',
     cost: 1500000,
     tier: 2,
-    effect: { speedMultiplier: 2.0 },
+    effect: { speedMultiplier: 1.5 },
     icon: '🧠',
     requiresUpgrade: 'quant_speed_1'
   },
@@ -132,7 +132,7 @@ export const AUTO_CLICKER_UPGRADES: AutoClickerUpgradeDefinition[] = [
     targetAutoClickerId: 'quant',
     cost: 10000000,
     tier: 3,
-    effect: { speedMultiplier: 2.5 },
+    effect: { speedMultiplier: 1.75 },
     icon: '⏰',
     requiresUpgrade: 'quant_speed_2'
   },
@@ -147,7 +147,7 @@ export const AUTO_CLICKER_UPGRADES: AutoClickerUpgradeDefinition[] = [
     type: 'power',
     cost: 5000,
     tier: 1,
-    effect: { powerMultiplier: 1.5 },
+    effect: { powerMultiplier: 1.2 },
     icon: '🖱️'
   },
   {
@@ -157,7 +157,7 @@ export const AUTO_CLICKER_UPGRADES: AutoClickerUpgradeDefinition[] = [
     type: 'power',
     cost: 35000,
     tier: 2,
-    effect: { powerMultiplier: 2.0 },
+    effect: { powerMultiplier: 1.3 },
     icon: '⌨️',
     requiresUpgrade: 'power_mouse_1'
   },
@@ -168,7 +168,7 @@ export const AUTO_CLICKER_UPGRADES: AutoClickerUpgradeDefinition[] = [
     type: 'power',
     cost: 100000,
     tier: 3,
-    effect: { powerMultiplier: 2.5 },
+    effect: { powerMultiplier: 1.4 },
     icon: '🖥️',
     requiresUpgrade: 'power_mouse_2'
   },
@@ -179,7 +179,7 @@ export const AUTO_CLICKER_UPGRADES: AutoClickerUpgradeDefinition[] = [
     type: 'power',
     cost: 500000,
     tier: 4,
-    effect: { powerMultiplier: 3.0 },
+    effect: { powerMultiplier: 1.5 },
     icon: '🎯',
     requiresUpgrade: 'power_monitor_1'
   },
@@ -190,7 +190,7 @@ export const AUTO_CLICKER_UPGRADES: AutoClickerUpgradeDefinition[] = [
     type: 'power',
     cost: 2500000,
     tier: 5,
-    effect: { powerMultiplier: 4.0 },
+    effect: { powerMultiplier: 1.6 },
     icon: '✨',
     requiresUpgrade: 'power_ai_1'
   },
@@ -200,32 +200,32 @@ export const AUTO_CLICKER_UPGRADES: AutoClickerUpgradeDefinition[] = [
   {
     id: 'synergy_team_1',
     name: 'Team Building Exercise',
-    description: 'Each auto-clicker type boosts others by 5%',
+    description: 'Each auto-clicker type boosts others by 3%',
     type: 'synergy',
     cost: 10000,
     tier: 1,
-    effect: { synergyBonus: 0.05 },
+    effect: { synergyBonus: 0.03 },
     icon: '🤝'
   },
   {
     id: 'synergy_team_2',
     name: 'Open Office Layout',
-    description: 'Collaboration increases efficiency by 10%',
+    description: 'Collaboration increases efficiency by 5%',
     type: 'synergy',
     cost: 75000,
     tier: 2,
-    effect: { synergyBonus: 0.10 },
+    effect: { synergyBonus: 0.05 },
     icon: '🏢',
     requiresUpgrade: 'synergy_team_1'
   },
   {
     id: 'synergy_team_3',
     name: 'Corporate Retreat',
-    description: 'Team bonding improves performance by 15%',
+    description: 'Team bonding improves performance by 7%',
     type: 'synergy',
     cost: 500000,
     tier: 3,
-    effect: { synergyBonus: 0.15 },
+    effect: { synergyBonus: 0.07 },
     icon: '🏖️',
     requiresUpgrade: 'synergy_team_2'
   },
@@ -236,7 +236,7 @@ export const AUTO_CLICKER_UPGRADES: AutoClickerUpgradeDefinition[] = [
     type: 'synergy',
     cost: 2500000,
     tier: 4,
-    effect: { synergyBonus: 0.25 },
+    effect: { synergyBonus: 0.10 },
     icon: '🏛️',
     requiresUpgrade: 'synergy_team_3'
   },

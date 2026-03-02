@@ -136,7 +136,9 @@ export const useGameStore = create<Store>()((set, get) => ({
     }))
 
     const updated = get()
-    const incomePerSecond = calculateTotalIncomePerSecond(updated)
+    const assetIncomePerSecond = calculateTotalIncomePerSecond(updated)
+    const autoClickerIncomePerSecond = calculateAutoClickerIncome(updated)
+    const incomePerSecond = assetIncomePerSecond + autoClickerIncomePerSecond
     const netWorth = calculateNetWorth(updated)
     const currentLayer = calculateCurrentLayer(updated.milestonesReached)
     set({ incomePerSecond, netWorth, currentLayer })
@@ -173,7 +175,9 @@ export const useGameStore = create<Store>()((set, get) => ({
     }))
 
     const updated = get()
-    const incomePerSecond = calculateTotalIncomePerSecond(updated)
+    const assetIncomePerSecond = calculateTotalIncomePerSecond(updated)
+    const autoClickerIncomePerSecond = calculateAutoClickerIncome(updated)
+    const incomePerSecond = assetIncomePerSecond + autoClickerIncomePerSecond
     set({ incomePerSecond })
 
     if (state.soundEnabled) sounds.upgrade()
@@ -195,11 +199,14 @@ export const useGameStore = create<Store>()((set, get) => ({
     const autoClickEarned = autoClickerIncome * effectiveElapsed
 
     const totalEarned = earned + autoClickEarned
+    
+    // Total income per second includes both assets and auto-clickers
+    const totalIncomePerSecond = incomePerSecond + autoClickerIncome
 
     // Safety check: ensure earnings don't cause overflow or negative values
     const newCash = Math.max(0, state.cash + totalEarned)
     const newAllTime = Math.max(0, state.allTimeEarned + totalEarned)
-    const updatedState = { ...state, cash: newCash, allTimeEarned: newAllTime, incomePerSecond }
+    const updatedState = { ...state, cash: newCash, allTimeEarned: newAllTime, incomePerSecond: totalIncomePerSecond }
     const newNetWorth = calculateNetWorth(updatedState)
 
     // Update history every 5 seconds
@@ -265,7 +272,9 @@ export const useGameStore = create<Store>()((set, get) => ({
       merged.allTimeEarned = Math.max(0, merged.allTimeEarned || 0)
     }
 
-    const incomePerSecond = calculateTotalIncomePerSecond(merged)
+    const assetIncomePerSecond = calculateTotalIncomePerSecond(merged)
+    const autoClickerIncomePerSecond = calculateAutoClickerIncome(merged)
+    const incomePerSecond = assetIncomePerSecond + autoClickerIncomePerSecond
     const netWorth = calculateNetWorth({ ...merged, incomePerSecond })
     const currentLayer = calculateCurrentLayer(merged.milestonesReached)
 

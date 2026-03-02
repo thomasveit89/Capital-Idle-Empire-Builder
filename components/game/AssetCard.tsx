@@ -19,6 +19,7 @@ export function AssetCard({ definition, ownedAsset, canAfford, isLocked, lockRea
   const cash            = useGameStore((s) => s.cash)
   const incomePerSecond = useGameStore((s) => s.incomePerSecond)
   const purchaseAsset   = useGameStore((s) => s.purchaseAsset)
+  const legacyMultiplier = useGameStore((s) => s.legacyMultiplier)
 
   const count       = ownedAsset?.count ?? 0
   const isOwned     = count > 0
@@ -26,7 +27,7 @@ export function AssetCard({ definition, ownedAsset, canAfford, isLocked, lockRea
   const cashNeeded  = currentCost - cash
   const timeToBuy   = !canAfford && incomePerSecond > 0 ? cashNeeded / incomePerSecond : 0
 
-  // Calculate current effective income per unit
+  // Calculate current effective income per unit (base, without legacy)
   let perUnitIncome = definition.baseIncomePerSecond
   if (ownedAsset) {
     for (const upgradeId of ownedAsset.unlockedUpgrades) {
@@ -37,7 +38,10 @@ export function AssetCard({ definition, ownedAsset, canAfford, isLocked, lockRea
     }
   }
   
-  const totalIncome = perUnitIncome * count
+  // Apply legacy multiplier for display
+  const boostedPerUnitIncome = perUnitIncome * legacyMultiplier
+  const totalIncome = boostedPerUnitIncome * count
+  const hasLegacyBoost = legacyMultiplier > 1
 
   // ── Locked state ──────────────────────────────────────────────────────────
   if (isLocked) {
@@ -97,10 +101,18 @@ export function AssetCard({ definition, ownedAsset, canAfford, isLocked, lockRea
           <>
             <span className="text-emerald-400 font-semibold">{formatCurrency(totalIncome)}/s</span>
             <span className="text-zinc-700">·</span>
-            <span className="text-zinc-500">{formatCurrency(perUnitIncome)}/s each</span>
+            <span className="text-zinc-500">{formatCurrency(boostedPerUnitIncome)}/s each</span>
+            {hasLegacyBoost && (
+              <span className="text-amber-400 text-[9px]">(×{legacyMultiplier.toFixed(1)})</span>
+            )}
           </>
         ) : (
-          <span className="text-zinc-500">{formatCurrency(perUnitIncome)}/s</span>
+          <>
+            <span className="text-zinc-500">{formatCurrency(boostedPerUnitIncome)}/s</span>
+            {hasLegacyBoost && (
+              <span className="text-amber-400 text-[9px]">(×{legacyMultiplier.toFixed(1)} dynasty)</span>
+            )}
+          </>
         )}
       </div>
 

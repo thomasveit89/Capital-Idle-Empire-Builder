@@ -3375,11 +3375,12 @@ function AssetCard({ definition, ownedAsset, canAfford, isLocked, lockReason, cu
     const cash = (0, __TURBOPACK__imported__module__$5b$project$5d2f$store$2f$gameStore$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useGameStore"])((s)=>s.cash);
     const incomePerSecond = (0, __TURBOPACK__imported__module__$5b$project$5d2f$store$2f$gameStore$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useGameStore"])((s)=>s.incomePerSecond);
     const purchaseAsset = (0, __TURBOPACK__imported__module__$5b$project$5d2f$store$2f$gameStore$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useGameStore"])((s)=>s.purchaseAsset);
+    const legacyMultiplier = (0, __TURBOPACK__imported__module__$5b$project$5d2f$store$2f$gameStore$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useGameStore"])((s)=>s.legacyMultiplier);
     const count = ownedAsset?.count ?? 0;
     const isOwned = count > 0;
     const cashNeeded = currentCost - cash;
     const timeToBuy = !canAfford && incomePerSecond > 0 ? cashNeeded / incomePerSecond : 0;
-    // Calculate current effective income per unit
+    // Calculate current effective income per unit (base, without legacy)
     let perUnitIncome = definition.baseIncomePerSecond;
     if (ownedAsset) {
         for (const upgradeId of ownedAsset.unlockedUpgrades){
@@ -3389,7 +3390,10 @@ function AssetCard({ definition, ownedAsset, canAfford, isLocked, lockReason, cu
             }
         }
     }
-    const totalIncome = perUnitIncome * count;
+    // Apply legacy multiplier for display
+    const boostedPerUnitIncome = perUnitIncome * legacyMultiplier;
+    const totalIncome = boostedPerUnitIncome * count;
+    const hasLegacyBoost = legacyMultiplier > 1;
     // ── Locked state ──────────────────────────────────────────────────────────
     if (isLocked) {
         return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3400,7 +3404,7 @@ function AssetCard({ definition, ownedAsset, canAfford, isLocked, lockReason, cu
                     children: definition.icon
                 }, void 0, false, {
                     fileName: "[project]/components/game/AssetCard.tsx",
-                    lineNumber: 46,
+                    lineNumber: 50,
                     columnNumber: 9
                 }, this),
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3414,7 +3418,7 @@ function AssetCard({ definition, ownedAsset, canAfford, isLocked, lockReason, cu
                                     className: "text-zinc-500 shrink-0"
                                 }, void 0, false, {
                                     fileName: "[project]/components/game/AssetCard.tsx",
-                                    lineNumber: 49,
+                                    lineNumber: 53,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -3422,13 +3426,13 @@ function AssetCard({ definition, ownedAsset, canAfford, isLocked, lockReason, cu
                                     children: definition.name
                                 }, void 0, false, {
                                     fileName: "[project]/components/game/AssetCard.tsx",
-                                    lineNumber: 50,
+                                    lineNumber: 54,
                                     columnNumber: 13
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/components/game/AssetCard.tsx",
-                            lineNumber: 48,
+                            lineNumber: 52,
                             columnNumber: 11
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -3436,13 +3440,13 @@ function AssetCard({ definition, ownedAsset, canAfford, isLocked, lockReason, cu
                             children: lockReason ?? 'Locked'
                         }, void 0, false, {
                             fileName: "[project]/components/game/AssetCard.tsx",
-                            lineNumber: 52,
+                            lineNumber: 56,
                             columnNumber: 11
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/components/game/AssetCard.tsx",
-                    lineNumber: 47,
+                    lineNumber: 51,
                     columnNumber: 9
                 }, this),
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -3450,13 +3454,13 @@ function AssetCard({ definition, ownedAsset, canAfford, isLocked, lockReason, cu
                     children: (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$format$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["formatCurrency"])(definition.baseCost)
                 }, void 0, false, {
                     fileName: "[project]/components/game/AssetCard.tsx",
-                    lineNumber: 54,
+                    lineNumber: 58,
                     columnNumber: 9
                 }, this)
             ]
         }, void 0, true, {
             fileName: "[project]/components/game/AssetCard.tsx",
-            lineNumber: 45,
+            lineNumber: 49,
             columnNumber: 7
         }, this);
     }
@@ -3472,7 +3476,7 @@ function AssetCard({ definition, ownedAsset, canAfford, isLocked, lockReason, cu
                         children: definition.icon
                     }, void 0, false, {
                         fileName: "[project]/components/game/AssetCard.tsx",
-                        lineNumber: 71,
+                        lineNumber: 75,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3485,12 +3489,12 @@ function AssetCard({ definition, ownedAsset, canAfford, isLocked, lockReason, cu
                                     children: definition.name
                                 }, void 0, false, {
                                     fileName: "[project]/components/game/AssetCard.tsx",
-                                    lineNumber: 75,
+                                    lineNumber: 79,
                                     columnNumber: 13
                                 }, this)
                             }, void 0, false, {
                                 fileName: "[project]/components/game/AssetCard.tsx",
-                                lineNumber: 74,
+                                lineNumber: 78,
                                 columnNumber: 11
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -3498,13 +3502,13 @@ function AssetCard({ definition, ownedAsset, canAfford, isLocked, lockReason, cu
                                 children: definition.description
                             }, void 0, false, {
                                 fileName: "[project]/components/game/AssetCard.tsx",
-                                lineNumber: 79,
+                                lineNumber: 83,
                                 columnNumber: 11
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/components/game/AssetCard.tsx",
-                        lineNumber: 73,
+                        lineNumber: 77,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3513,13 +3517,13 @@ function AssetCard({ definition, ownedAsset, canAfford, isLocked, lockReason, cu
                         children: count
                     }, void 0, false, {
                         fileName: "[project]/components/game/AssetCard.tsx",
-                        lineNumber: 83,
+                        lineNumber: 87,
                         columnNumber: 9
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/components/game/AssetCard.tsx",
-                lineNumber: 70,
+                lineNumber: 74,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3530,7 +3534,7 @@ function AssetCard({ definition, ownedAsset, canAfford, isLocked, lockReason, cu
                         className: isOwned ? 'text-emerald-500' : 'text-zinc-600'
                     }, void 0, false, {
                         fileName: "[project]/components/game/AssetCard.tsx",
-                        lineNumber: 95,
+                        lineNumber: 99,
                         columnNumber: 9
                     }, this),
                     isOwned ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Fragment"], {
@@ -3543,7 +3547,7 @@ function AssetCard({ definition, ownedAsset, canAfford, isLocked, lockReason, cu
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/components/game/AssetCard.tsx",
-                                lineNumber: 98,
+                                lineNumber: 102,
                                 columnNumber: 13
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -3551,36 +3555,64 @@ function AssetCard({ definition, ownedAsset, canAfford, isLocked, lockReason, cu
                                 children: "·"
                             }, void 0, false, {
                                 fileName: "[project]/components/game/AssetCard.tsx",
-                                lineNumber: 99,
+                                lineNumber: 103,
                                 columnNumber: 13
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
                                 className: "text-zinc-500",
                                 children: [
-                                    (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$format$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["formatCurrency"])(perUnitIncome),
+                                    (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$format$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["formatCurrency"])(boostedPerUnitIncome),
                                     "/s each"
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/components/game/AssetCard.tsx",
-                                lineNumber: 100,
+                                lineNumber: 104,
                                 columnNumber: 13
+                            }, this),
+                            hasLegacyBoost && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                className: "text-amber-400 text-[9px]",
+                                children: [
+                                    "(×",
+                                    legacyMultiplier.toFixed(1),
+                                    ")"
+                                ]
+                            }, void 0, true, {
+                                fileName: "[project]/components/game/AssetCard.tsx",
+                                lineNumber: 106,
+                                columnNumber: 15
                             }, this)
                         ]
-                    }, void 0, true) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-                        className: "text-zinc-500",
+                    }, void 0, true) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Fragment"], {
                         children: [
-                            (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$format$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["formatCurrency"])(perUnitIncome),
-                            "/s"
+                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                className: "text-zinc-500",
+                                children: [
+                                    (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$format$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["formatCurrency"])(boostedPerUnitIncome),
+                                    "/s"
+                                ]
+                            }, void 0, true, {
+                                fileName: "[project]/components/game/AssetCard.tsx",
+                                lineNumber: 111,
+                                columnNumber: 13
+                            }, this),
+                            hasLegacyBoost && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                className: "text-amber-400 text-[9px]",
+                                children: [
+                                    "(×",
+                                    legacyMultiplier.toFixed(1),
+                                    " dynasty)"
+                                ]
+                            }, void 0, true, {
+                                fileName: "[project]/components/game/AssetCard.tsx",
+                                lineNumber: 113,
+                                columnNumber: 15
+                            }, this)
                         ]
-                    }, void 0, true, {
-                        fileName: "[project]/components/game/AssetCard.tsx",
-                        lineNumber: 103,
-                        columnNumber: 11
-                    }, this)
+                    }, void 0, true)
                 ]
             }, void 0, true, {
                 fileName: "[project]/components/game/AssetCard.tsx",
-                lineNumber: 94,
+                lineNumber: 98,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3599,7 +3631,7 @@ function AssetCard({ definition, ownedAsset, canAfford, isLocked, lockReason, cu
                         ]
                     }, void 0, true, {
                         fileName: "[project]/components/game/AssetCard.tsx",
-                        lineNumber: 109,
+                        lineNumber: 121,
                         columnNumber: 9
                     }, this),
                     !canAfford && timeToBuy > 0 && timeToBuy < 600 && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -3611,19 +3643,19 @@ function AssetCard({ definition, ownedAsset, canAfford, isLocked, lockReason, cu
                         ]
                     }, void 0, true, {
                         fileName: "[project]/components/game/AssetCard.tsx",
-                        lineNumber: 122,
+                        lineNumber: 134,
                         columnNumber: 11
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/components/game/AssetCard.tsx",
-                lineNumber: 108,
+                lineNumber: 120,
                 columnNumber: 7
             }, this)
         ]
     }, void 0, true, {
         fileName: "[project]/components/game/AssetCard.tsx",
-        lineNumber: 63,
+        lineNumber: 67,
         columnNumber: 5
     }, this);
 }

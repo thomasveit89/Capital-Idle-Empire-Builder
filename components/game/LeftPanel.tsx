@@ -160,9 +160,16 @@ export function LeftPanel() {
                   <span className="text-sm">{item.icon}</span>
                   <span className="text-xs text-zinc-400 font-mono truncate">{item.name}</span>
                 </div>
-                <span className="text-xs font-mono text-emerald-400 shrink-0 ml-2">
-                  {formatCurrency(item.income)}/s
-                </span>
+                <div className="flex items-center gap-1.5 shrink-0 ml-2">
+                  <span className="text-xs font-mono text-emerald-400">
+                    {formatCurrency(item.income)}/s
+                  </span>
+                  {legacyMultiplier > 1 && (
+                    <span className="text-[9px] font-mono text-amber-400">
+                      ×{legacyMultiplier.toFixed(1)}
+                    </span>
+                  )}
+                </div>
               </div>
             ))}
             <div className="border-t border-zinc-800 pt-2 flex justify-between">

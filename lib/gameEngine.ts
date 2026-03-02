@@ -114,7 +114,7 @@ export function calculateAutoClickerIncome(state: GameState): number {
     
     // Calculate income: clicks/sec × speed multiplier × € per click × power multiplier × legacy
     const effectiveClicksPerSecond = def.clicksPerSecond * speedMultiplier
-    const valuePerClick = 1 * powerMultiplier * state.legacyMultiplier
+    const valuePerClick = 1 * state.clickPower * powerMultiplier * state.legacyMultiplier
     const clickerIncome = count * effectiveClicksPerSecond * valuePerClick
     
     totalIncome += clickerIncome

@@ -8,6 +8,7 @@ import {
   calculateClickValue,
   checkMilestones,
   calculateLegacyBonus,
+  calculateAutoClickerIncome,
 } from '@/lib/gameEngine'
 import { saveGame, loadGame, deleteSave } from '@/lib/saveLoad'
 import { MILESTONES } from '@/data/milestones'
@@ -189,19 +190,9 @@ export const useGameStore = create<Store>()((set, get) => ({
     const incomePerSecond = calculateTotalIncomePerSecond(state)
     const earned = incomePerSecond * effectiveElapsed
 
-    // Auto-clicker math - auto-clickers give base click value only (no income bonus)
-    const AUTO_CLICKERS = [
-      { id: 'intern', clicksPerSecond: 1 },
-      { id: 'analyst', clicksPerSecond: 5 },
-      { id: 'quant', clicksPerSecond: 25 }
-    ]
-    const totalAutoClicks = AUTO_CLICKERS.reduce((total, clicker) => {
-      return total + (state.autoClickers[clicker.id] || 0) * clicker.clicksPerSecond
-    }, 0)
-    
-    // Auto-clickers get base €1 per click + multipliers, but NOT the 10% income bonus
-    const autoClickValue = 1 * state.clickPower * state.legacyMultiplier
-    const autoClickEarned = totalAutoClicks * autoClickValue * effectiveElapsed
+    // Auto-clicker income (includes clickPower, speed/power multipliers, and legacy)
+    const autoClickerIncome = calculateAutoClickerIncome(state)
+    const autoClickEarned = autoClickerIncome * effectiveElapsed
 
     const totalEarned = earned + autoClickEarned
 
